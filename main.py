@@ -1,46 +1,83 @@
-import os, sys
 from stat import *
+import argparse
+import os, sys
 import shutil
 
-def walktree(top, callback):
-    for f in os.listdir(top):
+def walktree(source, dest, file_type, callback):
+    for f in os.listdir(source):
         if f != "photos":
-            pathname = os.path.join(top, f)
+            pathname = os.path.join(source, f)
             mode = os.stat(pathname)[ST_MODE]
 
             if S_ISDIR(mode):
                 # It's a directory, recurse into it
-                walktree(pathname, callback)
+                walktree(pathname, dest, file_type, callback)
             elif S_ISREG(mode):
                 # It's a file, call the callback function
-                callback(pathname)
+                callback(pathname, dest, file_type)
             else:
                 # Unknown file type, print a message
                 print('Skipping %s', pathname)
 
-def visitfile(file):
-    if file[-5:] == '.jpeg':
-        msg = 'visiting' + file + '\n'
-        f.write(msg)
+def visitfile(file, dest, file_type):
+    file_type_len = len(file_type)
+
+    if file[-file_type_len:] == file_type:
+        f.write('visiting' + file + '\n')
 
         file_name = file.split("/")[-1]
-        new_path = '/home/dj-d/Downloads/Test/photos/' + file_name
+        new_path = dest + '/' + file_name
 
         if not os.path.isfile(new_path):
-            msg = "Moved: " + new_path + '\n\n'
-            f.write(msg)
+            f.write("Moved: " + new_path + '\n\n')
             
             shutil.move(file, new_path)
         else:
-            msg = 'Already exist: ' + new_path + '\n\n'
-            f.write(msg)
+            f.write('Already exist: ' + new_path + '\n\n')
         
 
 if __name__ == '__main__':
-    print('Start')
-    f = open('work_video_jpeg.log', 'w')
+    parser = argparse.ArgumentParser(description=__doc__)
 
-    walktree(sys.argv[1], visitfile)
+    parser.add_argument(
+        '--source', '-s',
+        dest='source',
+        required=True,
+        type=str,
+        help=''
+    )
+
+    parser.add_argument(
+        '--destination', '-d',
+        dest='dest',
+        required=True,
+        type=str,
+        help=''
+    )
+
+    parser.add_argument(
+        '--file-type', '-t',
+        dest='file_type',
+        required=True,
+        help=''
+    )
+
+    parser.add_argument(
+        '--log-file', '-l',
+        dest='log_file',
+        required=True,
+        type=str,
+        help=''
+    )
+
+    args = parser.parse_args()
+
+    print('Start')
+
+    f = open(args.log_file, 'w')
+
+    file_type = '.' + args.file_type
+    walktree(args.source, args.dest, file_type, visitfile)
 
     f.close()
     print('Finish')
