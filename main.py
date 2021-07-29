@@ -3,6 +3,7 @@ import argparse
 import os, sys
 import shutil
 
+
 def walktree(source, dest, file_type, callback):
     for f in os.listdir(source):
         pathname = os.path.join(source, f)
@@ -17,6 +18,7 @@ def walktree(source, dest, file_type, callback):
         else:
             # Unknown file type, print a message
             print('Skipping %s', pathname)
+
 
 def visitfile(file, dest, file_type):
     file_type_len = len(file_type)
