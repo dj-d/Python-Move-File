@@ -5,19 +5,18 @@ import shutil
 
 def walktree(source, dest, file_type, callback):
     for f in os.listdir(source):
-        if f != "photos":
-            pathname = os.path.join(source, f)
-            mode = os.stat(pathname)[ST_MODE]
+        pathname = os.path.join(source, f)
+        mode = os.stat(pathname)[ST_MODE]
 
-            if S_ISDIR(mode):
-                # It's a directory, recurse into it
-                walktree(pathname, dest, file_type, callback)
-            elif S_ISREG(mode):
-                # It's a file, call the callback function
-                callback(pathname, dest, file_type)
-            else:
-                # Unknown file type, print a message
-                print('Skipping %s', pathname)
+        if S_ISDIR(mode):
+            # It's a directory, recurse into it
+            walktree(pathname, dest, file_type, callback)
+        elif S_ISREG(mode):
+            # It's a file, call the callback function
+            callback(pathname, dest, file_type)
+        else:
+            # Unknown file type, print a message
+            print('Skipping %s', pathname)
 
 def visitfile(file, dest, file_type):
     file_type_len = len(file_type)
